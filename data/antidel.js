@@ -27,7 +27,7 @@ let isInitialized = false;
 async function initializeAntiDeleteSettings() {
     if (isInitialized) return;
     try {
-        // First sync the model to ensure table exists✓
+        // First sync the model to ensure table exists
         await AntiDelDB.sync();
         
         // Check if old schema exists
