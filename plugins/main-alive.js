@@ -1,36 +1,45 @@
 const { cmd } = require("../command");
 const moment = require("moment");
 
-let botStartTime = Date.now(); // Enregistrement de l'heure de démarrage du bot
+let botStartTime = Date.now(); // Bot launch time
 
-// Array of fallback wallpaper URLs
 const FALLBACK_WALLPAPERS = [
-    "https://files.catbox.moe/og4tsk.jpg", // Your original image
+    "https://files.catbox.moe/og4tsk.jpg",
     "https://files.catbox.moe/odst1m.jpg",
     "https://files.catbox.moe/95n1x6.jpg",
     "https://files.catbox.moe/0w7hqx.jpg"
 ];
 
-// Function to get a random wallpaper URL
-const getRandomWallpaper = () => {
-    const randomIndex = Math.floor(Math.random() * FALLBACK_WALLPAPERS.length);
-    return FALLBACK_WALLPAPERS[randomIndex];
-};
-
-// Array of fancy quotes
 const FANCY_QUOTES = [
-    "\"✨The only way to do great work is to love what you do.🩷\" - Steve Jobs",
-    "\"🎀Innovation distinguishes between a leader and a followe💞r.\" - Steve Jobs",
-    "\"🟢The future belongs to those who believe in the beauty of their dreams✨.\" - Eleanor Roosevelt",
-    "\"✅Success is not final, failure is not fatal: It is the courage to continue that counts📊.\" - Winston Churchill",
-    "\"📸The greatest glory in living lies not in never falling, but in rising every time we fall.⏳\" - Nelson Mandela"
+    "🧬 Neural grid stable — systems running within optimal range.",
+    "🛰 Core uplink established — listening for user signal...",
+    "⚡ Power node calibrated — quantum stream active.",
+    "🧠 AI kernel synchronized — directive input mode engaged.",
+    "⚙️ XTECH protocol active — mission parameters clear.",
+    "🔋 Energy flow: 100% | AI routine: ALIVE",
+    "🚀 Fusion reactor idle. Awaiting next instruction...",
+    "🌐 Multi-thread ops: — No anomalies detected."
 ];
 
-// Function to get a random fancy quote
-const getRandomQuote = () => {
-    const randomIndex = Math.floor(Math.random() * FANCY_QUOTES.length);
-    return FANCY_QUOTES[randomIndex];
+// Quoted contact to show as reference
+const quotedContact = {
+    key: {
+        fromMe: false,
+        participant: "0@s.whatsapp.net",
+        remoteJid: "status@broadcast"
+    },
+    message: {
+        contactMessage: {
+            displayName: "⚙️ System-Status | Verified ✅",
+            vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:SCIFI\nORG:Shadow-Xtech BOT;\nTEL;type=CELL;type=VOICE;waid=254700000001:+254 700 000001\nEND:VCARD"
+        }
+    }
 };
+
+const getRandomWallpaper = () => FALLBACK_WALLPAPERS[Math.floor(Math.random() * FALLBACK_WALLPAPERS.length)];
+const getRandomQuote = () => FANCY_QUOTES[Math.floor(Math.random() * FANCY_QUOTES.length)];
+
+const whatsappChannelLink = 'https://whatsapp.com/channel/0029VasHgfG4tRrwjAUyTs10';
 
 cmd({
     pattern: "alive",
@@ -40,37 +49,35 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { reply, from }) => {
     try {
-        const pushname = m.pushName || "User"; // Nom de l'utilisateur ou valeur par défaut
+        const pushname = m.pushName || "User";
         const currentTime = moment().format("HH:mm:ss");
-        const currentDate = moment().format("dddd, MMMM Do YYYY"); // Added YYYY for full date
+        const currentDate = moment().format("dddd, MMMM Do YYYY");
 
-        const runtimeMilliseconds = Date.now() - botStartTime;
-        const runtimeSeconds = Math.floor((runtimeMilliseconds / 1000) % 60);
-        const runtimeMinutes = Math.floor((runtimeMilliseconds / (1000 * 60)) % 60);
-        const runtimeHours = Math.floor(runtimeMilliseconds / (1000 * 60 * 60));
+        const runtimeMs = Date.now() - botStartTime;
+        const runtime = {
+            hours: Math.floor(runtimeMs / (1000 * 60 * 60)),
+            minutes: Math.floor((runtimeMs / (1000 * 60)) % 60),
+            seconds: Math.floor((runtimeMs / 1000) % 60),
+        };
 
-        const randomQuote = getRandomQuote();
-        const wallpaperUrl = getRandomWallpaper(); // Get a random wallpaper
-
-        const formattedInfo = `
+        const caption = `
 🌟 *SHADOW-XTECH STATUS* 🌟
 Hey 👋🏻 ${pushname}
 🕒 *Time*: ${currentTime}
 📅 *Date*: ${currentDate}
-⏳ *Uptime*: ${runtimeHours} hours, ${runtimeMinutes} minutes, ${runtimeSeconds} seconds
+⏳ *Uptime*: ${runtime.hours}h ${runtime.minutes}m ${runtime.seconds}s
 
-*🤖Status*: *Bot 🤖 is alive and healthy🛠️*
+*🤖Status*: *Bot is alive and healthy🛠️*
 
-"${randomQuote}"
+"${getRandomQuote()}"
 
 *🔹 Powered by Black-Tappy 🔹*
         `.trim();
 
-        // Envoyer le message avec image et légende
         await conn.sendMessage(from, {
-            image: { url: wallpaperUrl }, // Use the random wallpaper URL
-            caption: formattedInfo,
-            contextInfo: { 
+            image: { url: getRandomWallpaper() },
+            caption,
+            contextInfo: {
                 mentionedJid: [m.sender],
                 forwardingScore: 999,
                 isForwarded: true,
@@ -78,16 +85,22 @@ Hey 👋🏻 ${pushname}
                     newsletterJid: '120363369453603973@newsletter',
                     newsletterName: '𝐒ʜᴀᴅᴏᴡ 𝐗ᴛᴇᴄʜ',
                     serverMessageId: 143
+                },
+                externalAdReply: {
+                    title: "⚙️ SHADOW-XTECH SYSTEM STATUS",
+                    body: "Bot is live and operational — stay connected!",
+                    thumbnailUrl: "https://files.catbox.moe/3l3qgq.jpg",
+                    sourceUrl: whatsappChannelLink,
+                    mediaType: 1,
+                    renderLargerThumbnail: false
                 }
             }
-        }, { quoted: mek });
+        }, { quoted: quotedContact });
 
     } catch (error) {
         console.error("Error in alive command: ", error);
-        
-        // Répondre avec des détails de l'erreur
         const errorMessage = `
-❌ An error occurred while processing the alive command.
+❌ An error occurred while processing the *alive* command.
 🛠 *Error Details*:
 ${error.message}
 
